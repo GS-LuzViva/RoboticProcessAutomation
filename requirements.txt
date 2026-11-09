@@ -1,0 +1,4 @@
+requests==2.34.2
+tzdata==2026.6
+# instala o próprio robô (pacote em src/) para `python -m luzviva_rpa` funcionar na raiz
+-e .

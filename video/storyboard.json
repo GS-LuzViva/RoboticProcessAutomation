@@ -1,0 +1,111 @@
+{
+  "episodio": "ep-001",
+  "serie": "LuzViva explica",
+  "titulo": "O que fazem o site e o robô de RPA do LuzViva",
+  "formato": {
+    "largura": 1080,
+    "altura": 1920,
+    "fps": 30
+  },
+  "voz": {
+    "nome": "pt-BR-FranciscaNeural",
+    "taxa": "+10%",
+    "tom": "+0Hz"
+  },
+  "rodape_final": "Dados do piloto parcialmente simulados.",
+  "cenas": [
+    {
+      "id": "gancho",
+      "fala": "Quem avisa a prefeitura quando um poste apaga?",
+      "texto_tela": "Poste apagou. Quem avisa?",
+      "pose": "falando_maos_abertas",
+      "layout": "mascote",
+      "acao": "Mascote entra com um pulo curto; a lâmpada acende junto com a voz.",
+      "observacao": "Gancho nos primeiros 3 s, sem vinheta."
+    },
+    {
+      "id": "promessa",
+      "fala": "Hoje, só quando alguém reclama. O LuzViva acha a falha antes.",
+      "texto_tela": "O LuzViva acha a falha antes",
+      "pose": "falando_gesto",
+      "layout": "mascote",
+      "acao": "Mascote gesticula; brilho acompanha a fala.",
+      "observacao": "\"Acha antes\" é a proposta do produto no piloto, não um resultado medido."
+    },
+    {
+      "id": "site_mapa",
+      "fala": "No site, o mapa mostra cada poste: verde funciona, amarelo está fraco, vermelho apagou.",
+      "texto_tela": "1. O site mostra o mapa",
+      "pose": "apontando_direita",
+      "layout": "tela_direita",
+      "tela": "tela_mapa.png",
+      "destaque": {
+        "x": 380,
+        "y": 840,
+        "largura": 520,
+        "altura": 124
+      },
+      "acao": "Celular com a tela real do mapa entra pela direita e rola até o popup; um contorno amarelo é desenhado em \"Apagada, 0,1 lux\" quando a voz diz \"vermelho\".",
+      "observacao": "Tela real do app (390 px, densidade 2x), capturada do build atual."
+    },
+    {
+      "id": "site_relato",
+      "fala": "Viu um poste apagado? Manda a foto e a placa amarela pintada nele.",
+      "texto_tela": "Você relata pela placa",
+      "pose": "apontando_esquerda",
+      "layout": "tela_esquerda",
+      "tela": "tela_relatar.png",
+      "destaque": {
+        "x": 389,
+        "y": 560,
+        "largura": 480,
+        "altura": 150
+      },
+      "acao": "Celular com o formulário real entra pela esquerda; contorno desenhado na placa quando a voz diz \"placa\".",
+      "observacao": "A placa IP0723371 é do cadastro público da ILUME usado no piloto."
+    },
+    {
+      "id": "rpa_fila",
+      "fala": "Aí entra o robô de RPA: de hora em hora, ele lê a fila e abre o chamado.",
+      "texto_tela": "2. Robô abre o chamado",
+      "pose": "apontando_direita",
+      "layout": "rpa",
+      "tela": "tela_chamados.png",
+      "log": [
+        "GET /api/fila → 134 itens",
+        "chamado aberto IP0537889 (70)",
+        "chamado aberto IP0699800 (90)",
+        "chamado aberto IP0546337 (80)",
+        "resumo: 88 abertos, 0 falhas"
+      ],
+      "acao": "Primeira metade: terminal digitando linhas reais do log do robô. Segunda metade: celular com a tela real de chamados.",
+      "observacao": "Linhas resumidas do log real da execução de 09/11 (logs/rpa_2026-11-09.log): placa e prioridade."
+    },
+    {
+      "id": "resumo",
+      "fala": "E ele cobra o prazo até a luz voltar.",
+      "texto_tela": "E cobra até a luz voltar",
+      "pose": "positivo",
+      "layout": "mascote",
+      "acao": "Mascote faz positivo.",
+      "observacao": "Prazo: 5 dias para apagada, 10 para insuficiente; o robô conclui quando o robô de medição mede luz normal."
+    },
+    {
+      "id": "encerramento",
+      "fala": "Esse é o LuzViva: o site mostra a falha, e o robô cuida do chamado.",
+      "texto_tela": "LuzViva",
+      "pose": "aceno",
+      "layout": "final",
+      "acao": "Mascote acena; nome do produto, da GS, a equipe com RM e o aviso sobre dados simulados.",
+      "observacao": "Sem chamada para comentar: o vídeo vai para avaliação da professora, não para as redes.",
+      "subtitulo": "Global Solution FIAP 2026.2",
+      "creditos": [
+        "Caíque Walter Silva, RM550693",
+        "Matheus José de Lima Costa, RM551157",
+        "João Paulo F. Zamperlini, RM99279",
+        "Guilherme Monteiro Espim, RM99499",
+        "Guilherme Nobre Bernardo, RM98604"
+      ]
+    }
+  ]
+}

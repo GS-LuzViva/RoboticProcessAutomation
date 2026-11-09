@@ -1,0 +1,48 @@
+# Ambientes e caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Segredos e configuração local (use .env.example como referência)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Front-end: dependências e build intermediário (static/ é o build publicado e fica versionado)
+app/frontend/node_modules/
+app/frontend/dist/
+app/frontend/*.tsbuildinfo
+app/frontend/node_modules/.tmp/
+
+# Estado gerado pelo app em execução (arquivos do dia, banco de chamados, fotos de cidadãos)
+app/dados_dia/
+app/fotos/
+*.db
+*.db-journal
+
+# Saídas do robô: só as amostras sanitizadas vão para o Git
+saida/
+logs/*.log
+!logs/exemplo_*.log
+
+# Ferramentas de vídeo e navegador
+.hyperframes/
+.playwright-mcp/
+
+# Sistema e editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.tmp

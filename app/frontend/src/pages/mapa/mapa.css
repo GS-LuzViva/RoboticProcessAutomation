@@ -1,0 +1,131 @@
+/*
+ * Ajustes do Leaflet para o tema do LuzViva. O CSS do Leaflet não está em camada (@layer), então
+ * ganha das classes do Tailwind dentro do mapa: aqui ele é devolvido aos tokens.
+ */
+
+.mapa-luzviva.leaflet-container {
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  background: var(--muted);
+}
+
+/* Tema escuro: escurece só os ladrilhos; os círculos (outro painel) ficam com a cor cheia. */
+.dark .mapa-luzviva .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.8) contrast(0.9) saturate(0.6);
+}
+
+.mapa-luzviva .leaflet-control-attribution {
+  background: color-mix(in srgb, var(--card) 85%, transparent);
+  color: var(--muted-foreground);
+}
+
+.mapa-luzviva .leaflet-control-attribution a {
+  color: var(--primary);
+}
+
+.mapa-luzviva .leaflet-bar a {
+  background: var(--card);
+  color: var(--foreground);
+  border-bottom-color: var(--border);
+}
+
+.mapa-luzviva .leaflet-bar a:hover,
+.mapa-luzviva .leaflet-bar a:focus-visible {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.mapa-luzviva .leaflet-bar a:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.mapa-luzviva .leaflet-bar a.leaflet-disabled {
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+
+.mapa-luzviva:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
+/* Popup como os outros elementos flutuantes do app (popover). */
+.mapa-luzviva .leaflet-popup-content-wrapper,
+.mapa-luzviva .leaflet-popup-tip {
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.18);
+}
+
+.mapa-luzviva .leaflet-popup-content-wrapper {
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.mapa-luzviva .leaflet-popup-content {
+  margin: 14px 16px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Links e parágrafos dentro do popup voltam ao que o Tailwind define (botões, cores). */
+.mapa-luzviva .leaflet-popup-content a,
+.mapa-luzviva .leaflet-popup-content p {
+  color: revert-layer;
+  margin: revert-layer;
+}
+
+.mapa-luzviva a.leaflet-popup-close-button {
+  top: 4px;
+  right: 4px;
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+  line-height: 30px;
+  color: var(--muted-foreground);
+  border-radius: 6px;
+}
+
+.mapa-luzviva a.leaflet-popup-close-button:hover {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+.mapa-luzviva a.leaflet-popup-close-button:focus-visible {
+  outline: 2px solid var(--ring);
+}
+
+/* Celular: com um popup aberto, o zoom (como a legenda) sai da frente; a pinça continua dando zoom. */
+@media (max-width: 639px) {
+  .mapa-luzviva.com-popup .leaflet-control-zoom {
+    display: none;
+  }
+}
+
+/* Popup mais alto que o mapa (celular deitado): o conteúdo rola dentro dele. */
+.mapa-luzviva .leaflet-popup-scrolled {
+  border: 0;
+  overscroll-behavior: contain;
+}
+
+/* Toque: zoom e X do popup com 44 px (DESIGN.md), em vez dos 30/32 px do Leaflet. */
+@media (pointer: coarse) {
+  .mapa-luzviva .leaflet-bar a,
+  .mapa-luzviva.leaflet-touch .leaflet-bar a {
+    width: 44px;
+    height: 44px;
+    line-height: 44px;
+    font-size: 24px;
+  }
+
+  .mapa-luzviva a.leaflet-popup-close-button {
+    top: 0;
+    right: 0;
+    width: 44px;
+    height: 44px;
+    font-size: 24px;
+    line-height: 44px;
+  }
+}

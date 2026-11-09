@@ -1,0 +1,34 @@
+# Sobe o site + API e o robô de RPA juntos: docker compose up --build
+# O robô só começa quando a API responde no /health. Configuração em .env (copie de .env.example).
+services:
+  app:
+    build: ./app
+    ports:
+      - "${LUZVIVA_PORTA:-8000}:8000"
+    environment:
+      LUZVIVA_API_TOKEN: ${LUZVIVA_API_TOKEN:-}
+      LUZVIVA_CORS: ${LUZVIVA_CORS:-}
+      IA_URL: ${IA_URL:-}
+      VISAO_URL: ${VISAO_URL:-}
+    volumes:
+      - estado-app:/srv/estado
+    restart: unless-stopped
+
+  rpa:
+    build: .
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      LUZVIVA_API_URL: http://app:8000
+      LUZVIVA_API_TOKEN: ${LUZVIVA_API_TOKEN:-}
+      LUZVIVA_RPA_INTERVALO: ${LUZVIVA_RPA_INTERVALO:-3600}
+    volumes:
+      - logs-rpa:/srv/rpa/logs
+      - saida-rpa:/srv/rpa/saida
+    restart: unless-stopped
+
+volumes:
+  estado-app:
+  logs-rpa:
+  saida-rpa:

@@ -1,0 +1,30 @@
+2026-11-09 12:32:49 | INFO    | API=http://127.0.0.1:8799 token=definido
+2026-11-09 12:32:49 | INFO    | início da execução
+2026-11-09 12:32:49 | INFO    | fila lida: 8 itens
+2026-11-09 12:32:49 | WARNING | item inválido posicao=1 placa=IP0102030 motivo=prioridade ausente, não numérica ou fora de 0..100
+2026-11-09 12:32:49 | INFO    | chamado aberto id=CH-20261109-IP0723371 placa=IP0723371 prioridade=90 equipe=EQUIPE-CENTRO
+2026-11-09 12:32:49 | INFO    | chamado aberto id=CH-20261109-IP0298167 placa=IP0298167 prioridade=80 equipe=EQUIPE-OESTE
+2026-11-09 12:32:49 | INFO    | duplicado placa=IP0511204 prioridade=70 motivo=placa já tem chamado aberto ou em atendimento
+2026-11-09 12:32:49 | INFO    | duplicado placa=IP0723371 prioridade=60 motivo=placa repetida na mesma fila
+2026-11-09 12:32:49 | WARNING | item inválido posicao=6 placa=<invalida> motivo=placa fora do padrão ^IP\d{7}$
+2026-11-09 12:32:49 | INFO    | chamado aberto id=CH-20261109-IP0634410 placa=IP0634410 prioridade=40 equipe=EQUIPE-SUL
+2026-11-09 12:32:49 | INFO    | monitorar placa=IP0845512 prioridade=20 motivo=prioridade abaixo do corte 30
+2026-11-09 12:32:49 | INFO    | acompanhamento: 6 chamados abertos ou em atendimento
+2026-11-09 12:32:49 | WARNING | ESCALONAMENTO prazo vencido id=CH-20261102-IP0511204 placa=IP0511204 area=CAMPO LIMPO dias_em_aberto=7.0 prazo_dias=5
+2026-11-09 12:32:49 | INFO    | chamado atualizado id=CH-20261106-IP0300003 placa=IP0300003 status=concluido motivo=medição ok depois da abertura
+2026-11-09 12:32:49 | INFO    | chamado atualizado id=CH-20261107-IP0400001 placa=IP0400001 status=em_atendimento motivo=aberto há 1 dia ou mais
+2026-11-09 12:32:49 | INFO    | resumo: lidos=8 abertos=3 monitorar=1 duplicados=2 invalidos=2 em_atendimento=1 escalados=1 concluidos=1 falhas=0 duracao_s=0.146
+2026-11-09 12:32:50 | INFO    | API=http://127.0.0.1:8799 token=definido
+2026-11-09 12:32:50 | INFO    | início da execução
+2026-11-09 12:32:50 | INFO    | fila lida: 8 itens
+2026-11-09 12:32:50 | WARNING | item inválido posicao=1 placa=IP0102030 motivo=prioridade ausente, não numérica ou fora de 0..100
+2026-11-09 12:32:50 | INFO    | duplicado placa=IP0723371 prioridade=90 motivo=placa já tem chamado aberto ou em atendimento
+2026-11-09 12:32:50 | INFO    | duplicado placa=IP0298167 prioridade=80 motivo=placa já tem chamado aberto ou em atendimento
+2026-11-09 12:32:50 | INFO    | duplicado placa=IP0511204 prioridade=70 motivo=placa já tem chamado aberto ou em atendimento
+2026-11-09 12:32:50 | INFO    | duplicado placa=IP0723371 prioridade=60 motivo=placa repetida na mesma fila
+2026-11-09 12:32:50 | WARNING | item inválido posicao=6 placa=<invalida> motivo=placa fora do padrão ^IP\d{7}$
+2026-11-09 12:32:50 | INFO    | duplicado placa=IP0634410 prioridade=40 motivo=placa já tem chamado aberto ou em atendimento
+2026-11-09 12:32:50 | INFO    | monitorar placa=IP0845512 prioridade=20 motivo=prioridade abaixo do corte 30
+2026-11-09 12:32:50 | INFO    | acompanhamento: 5 chamados abertos ou em atendimento
+2026-11-09 12:32:50 | WARNING | ESCALONAMENTO prazo vencido id=CH-20261102-IP0511204 placa=IP0511204 area=CAMPO LIMPO dias_em_aberto=7.0 prazo_dias=5
+2026-11-09 12:32:50 | INFO    | resumo: lidos=8 abertos=0 monitorar=1 duplicados=5 invalidos=2 em_atendimento=0 escalados=1 concluidos=0 falhas=0 duracao_s=0.049

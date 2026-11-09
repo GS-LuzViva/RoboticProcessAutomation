@@ -1,0 +1,18 @@
+{
+  "inicio": "2026-11-09T12:32:49",
+  "fim": "2026-11-09T12:32:49",
+  "duracao_s": 0.146,
+  "simulacao": false,
+  "contagem": {
+    "lidos": 8,
+    "abertos": 3,
+    "monitorar": 1,
+    "duplicados": 2,
+    "invalidos": 2,
+    "em_atendimento": 1,
+    "escalados": 1,
+    "concluidos": 1,
+    "falhas": 0
+  },
+  "erros": []
+}

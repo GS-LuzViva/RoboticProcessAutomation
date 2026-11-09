@@ -1,0 +1,21 @@
+{
+  "inicio": "2026-11-09T12:32:51",
+  "fim": "2026-11-09T12:33:14",
+  "duracao_s": 23.303,
+  "simulacao": true,
+  "contagem": {
+    "lidos": 0,
+    "abertos": 0,
+    "monitorar": 0,
+    "duplicados": 0,
+    "invalidos": 0,
+    "em_atendimento": 0,
+    "escalados": 0,
+    "concluidos": 0,
+    "falhas": 0
+  },
+  "erros": [
+    "fila: API indisponível após 4 tentativas: GET /api/fila",
+    "chamados: API indisponível após 4 tentativas: GET /api/chamados"
+  ]
+}

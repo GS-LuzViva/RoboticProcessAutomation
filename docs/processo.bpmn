@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  id="Definicoes_LuzViva_RPA" targetNamespace="https://github.com/luzviva/luzviva-rpa"
+                  exporter="luzviva-rpa" exporterVersion="1.0">
+  <bpmn:error id="Erro_ApiIndisponivel" name="API fora do ar (4 tentativas esgotadas)" errorCode="API_INDISPONIVEL" />
+  <bpmn:error id="Erro_Api" name="Falha da API (rede, 5xx ou 4xx)" errorCode="ERRO_API" />
+  <bpmn:process id="Processo_RPA_LuzViva" name="RPA LuzViva: abrir e acompanhar chamados" isExecutable="false">
+    <bpmn:documentation>Robô Python agendado de hora em hora. Consome a API do app LuzViva (nunca o SP156 real). Regras em luzviva-app/docs/especificacao_api.md.</bpmn:documentation>
+    <bpmn:startEvent id="Inicio" name="Execução agendada (de hora em hora)">
+      <bpmn:outgoing>F1</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="Timer_Hora">
+        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">R/PT1H</bpmn:timeCycle>
+      </bpmn:timerEventDefinition>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="T_LerFila" name="Ler fila de manutenção (GET /api/fila, timeout 20 s, até 4 tentativas)">
+      <bpmn:incoming>F1</bpmn:incoming>
+      <bpmn:outgoing>F2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="B_Fila" name="API fora do ar" attachedToRef="T_LerFila" cancelActivity="true">
+      <bpmn:outgoing>F5</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="Def_B_Fila" errorRef="Erro_ApiIndisponivel" />
+    </bpmn:boundaryEvent>
+    <bpmn:exclusiveGateway id="G_FilaValida" name="Envelope da fila válido?">
+      <bpmn:incoming>F2</bpmn:incoming>
+      <bpmn:outgoing>F3</bpmn:outgoing>
+      <bpmn:outgoing>F4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="T_LerChamadosFila" name="Ler chamados abertos para evitar duplicado (GET /api/chamados)">
+      <bpmn:incoming>F3</bpmn:incoming>
+      <bpmn:outgoing>F6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:task id="T_ErroFila" name="Registrar erro da fila no log (ERROR) e pular a fase">
+      <bpmn:incoming>F4</bpmn:incoming>
+      <bpmn:incoming>F5</bpmn:incoming>
+      <bpmn:outgoing>F8</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:subProcess id="SP_Fila" name="Para cada item da fila (repetição)" triggeredByEvent="false">
+      <bpmn:incoming>F6</bpmn:incoming>
+      <bpmn:outgoing>F7</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true" />
+      <bpmn:startEvent id="SI_Inicio" name="Item da fila">
+        <bpmn:outgoing>FI1</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:task id="T_Validar" name="Validar item (placa ^IP\d{7}$, prioridade 0..100, área-piloto)">
+        <bpmn:incoming>FI1</bpmn:incoming>
+        <bpmn:outgoing>FI2</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:exclusiveGateway id="G_Decisao" name="Decisão do item">
+        <bpmn:incoming>FI2</bpmn:incoming>
+        <bpmn:outgoing>FI3</bpmn:outgoing>
+        <bpmn:outgoing>FI4</bpmn:outgoing>
+        <bpmn:outgoing>FI5</bpmn:outgoing>
+        <bpmn:outgoing>FI6</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:task id="T_Invalido" name="Registrar inválido (WARNING) e contar">
+        <bpmn:incoming>FI3</bpmn:incoming>
+        <bpmn:outgoing>FI7</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:task id="T_Monitorar" name="Registrar como monitorar">
+        <bpmn:incoming>FI4</bpmn:incoming>
+        <bpmn:outgoing>FI8</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:task id="T_Duplicado" name="Registrar duplicado (inclui 409 da API)">
+        <bpmn:incoming>FI5</bpmn:incoming>
+        <bpmn:outgoing>FI9</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:serviceTask id="T_Abrir" name="Abrir chamado (POST /api/chamados, status aberto, equipe por área)">
+        <bpmn:incoming>FI6</bpmn:incoming>
+        <bpmn:outgoing>FI10</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:boundaryEvent id="B_Abrir" name="Falha da API" attachedToRef="T_Abrir" cancelActivity="true">
+        <bpmn:outgoing>FI11</bpmn:outgoing>
+        <bpmn:errorEventDefinition id="Def_B_Abrir" errorRef="Erro_Api" />
+      </bpmn:boundaryEvent>
+      <bpmn:task id="T_FalhaItem" name="Contar falha (ERROR) e seguir para o próximo item">
+        <bpmn:incoming>FI11</bpmn:incoming>
+        <bpmn:outgoing>FI12</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:exclusiveGateway id="G_FimItem">
+        <bpmn:incoming>FI7</bpmn:incoming>
+        <bpmn:incoming>FI8</bpmn:incoming>
+        <bpmn:incoming>FI9</bpmn:incoming>
+        <bpmn:incoming>FI10</bpmn:incoming>
+        <bpmn:incoming>FI12</bpmn:incoming>
+        <bpmn:outgoing>FI13</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:endEvent id="SI_Fim" name="Item tratado">
+        <bpmn:incoming>FI13</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="FI1" sourceRef="SI_Inicio" targetRef="T_Validar" />
+      <bpmn:sequenceFlow id="FI2" sourceRef="T_Validar" targetRef="G_Decisao" />
+      <bpmn:sequenceFlow id="FI3" name="inválido" sourceRef="G_Decisao" targetRef="T_Invalido" />
+      <bpmn:sequenceFlow id="FI4" name="prioridade &lt; 30" sourceRef="G_Decisao" targetRef="T_Monitorar" />
+      <bpmn:sequenceFlow id="FI5" name="já tem chamado ou placa repetida" sourceRef="G_Decisao" targetRef="T_Duplicado" />
+      <bpmn:sequenceFlow id="FI6" name="prioridade &gt;= 30 e sem chamado" sourceRef="G_Decisao" targetRef="T_Abrir" />
+      <bpmn:sequenceFlow id="FI7" sourceRef="T_Invalido" targetRef="G_FimItem" />
+      <bpmn:sequenceFlow id="FI8" sourceRef="T_Monitorar" targetRef="G_FimItem" />
+      <bpmn:sequenceFlow id="FI9" sourceRef="T_Duplicado" targetRef="G_FimItem" />
+      <bpmn:sequenceFlow id="FI10" sourceRef="T_Abrir" targetRef="G_FimItem" />
+      <bpmn:sequenceFlow id="FI11" sourceRef="B_Abrir" targetRef="T_FalhaItem" />
+      <bpmn:sequenceFlow id="FI12" sourceRef="T_FalhaItem" targetRef="G_FimItem" />
+      <bpmn:sequenceFlow id="FI13" sourceRef="G_FimItem" targetRef="SI_Fim" />
+    </bpmn:subProcess>
+    <bpmn:exclusiveGateway id="G_Merge1">
+      <bpmn:incoming>F7</bpmn:incoming>
+      <bpmn:incoming>F8</bpmn:incoming>
+      <bpmn:outgoing>F9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="T_LerAcomp" name="Ler chamados abertos e luminárias (GET /api/chamados, /api/luminarias)">
+      <bpmn:incoming>F9</bpmn:incoming>
+      <bpmn:outgoing>F10</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="B_Acomp" name="API fora do ar" attachedToRef="T_LerAcomp" cancelActivity="true">
+      <bpmn:outgoing>F11</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="Def_B_Acomp" errorRef="Erro_ApiIndisponivel" />
+    </bpmn:boundaryEvent>
+    <bpmn:task id="T_ErroCh" name="Registrar erro dos chamados no log (ERROR) e pular a fase">
+      <bpmn:incoming>F11</bpmn:incoming>
+      <bpmn:outgoing>F13</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:subProcess id="SP_Chamados" name="Para cada chamado aberto ou em atendimento (repetição)" triggeredByEvent="false">
+      <bpmn:incoming>F10</bpmn:incoming>
+      <bpmn:outgoing>F12</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true" />
+      <bpmn:startEvent id="SC_Inicio" name="Chamado aberto">
+        <bpmn:outgoing>FC1</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:exclusiveGateway id="G_Conclui" name="Luminária ok com medição depois da abertura?">
+        <bpmn:incoming>FC1</bpmn:incoming>
+        <bpmn:outgoing>FC2</bpmn:outgoing>
+        <bpmn:outgoing>FC3</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:serviceTask id="T_Concluir" name="Concluir chamado (PATCH status concluido)">
+        <bpmn:incoming>FC2</bpmn:incoming>
+        <bpmn:outgoing>FC11</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:boundaryEvent id="B_Concluir" name="Falha da API" attachedToRef="T_Concluir" cancelActivity="true">
+        <bpmn:outgoing>FC12</bpmn:outgoing>
+        <bpmn:errorEventDefinition id="Def_B_Concluir" errorRef="Erro_Api" />
+      </bpmn:boundaryEvent>
+      <bpmn:exclusiveGateway id="G_Prazo" name="Prazo vencido? (5 d apagada, 10 d insuficiente)">
+        <bpmn:incoming>FC3</bpmn:incoming>
+        <bpmn:outgoing>FC4</bpmn:outgoing>
+        <bpmn:outgoing>FC5</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:task id="T_Escalar" name="Escalar: log WARNING + saida/escalonamentos_AAAA-MM-DD.json">
+        <bpmn:incoming>FC4</bpmn:incoming>
+        <bpmn:outgoing>FC6</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:exclusiveGateway id="G_MergePrazo">
+        <bpmn:incoming>FC5</bpmn:incoming>
+        <bpmn:incoming>FC6</bpmn:incoming>
+        <bpmn:outgoing>FC7</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:exclusiveGateway id="G_Atend" name="Status aberto há 1 dia ou mais?">
+        <bpmn:incoming>FC7</bpmn:incoming>
+        <bpmn:outgoing>FC8</bpmn:outgoing>
+        <bpmn:outgoing>FC9</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:serviceTask id="T_Atender" name="Passar para em_atendimento (PATCH)">
+        <bpmn:incoming>FC8</bpmn:incoming>
+        <bpmn:outgoing>FC10</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:boundaryEvent id="B_Atender" name="Falha da API" attachedToRef="T_Atender" cancelActivity="true">
+        <bpmn:outgoing>FC13</bpmn:outgoing>
+        <bpmn:errorEventDefinition id="Def_B_Atender" errorRef="Erro_Api" />
+      </bpmn:boundaryEvent>
+      <bpmn:task id="T_FalhaCh" name="Contar falha (ERROR) e seguir">
+        <bpmn:incoming>FC12</bpmn:incoming>
+        <bpmn:incoming>FC13</bpmn:incoming>
+        <bpmn:outgoing>FC14</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:exclusiveGateway id="G_FimCh">
+        <bpmn:incoming>FC9</bpmn:incoming>
+        <bpmn:incoming>FC10</bpmn:incoming>
+        <bpmn:incoming>FC11</bpmn:incoming>
+        <bpmn:incoming>FC14</bpmn:incoming>
+        <bpmn:outgoing>FC15</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:endEvent id="SC_Fim" name="Chamado tratado">
+        <bpmn:incoming>FC15</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="FC1" sourceRef="SC_Inicio" targetRef="G_Conclui" />
+      <bpmn:sequenceFlow id="FC2" name="sim" sourceRef="G_Conclui" targetRef="T_Concluir" />
+      <bpmn:sequenceFlow id="FC3" name="não" sourceRef="G_Conclui" targetRef="G_Prazo" />
+      <bpmn:sequenceFlow id="FC4" name="sim" sourceRef="G_Prazo" targetRef="T_Escalar" />
+      <bpmn:sequenceFlow id="FC5" name="não" sourceRef="G_Prazo" targetRef="G_MergePrazo" />
+      <bpmn:sequenceFlow id="FC6" sourceRef="T_Escalar" targetRef="G_MergePrazo" />
+      <bpmn:sequenceFlow id="FC7" sourceRef="G_MergePrazo" targetRef="G_Atend" />
+      <bpmn:sequenceFlow id="FC8" name="sim" sourceRef="G_Atend" targetRef="T_Atender" />
+      <bpmn:sequenceFlow id="FC9" name="não" sourceRef="G_Atend" targetRef="G_FimCh" />
+      <bpmn:sequenceFlow id="FC10" sourceRef="T_Atender" targetRef="G_FimCh" />
+      <bpmn:sequenceFlow id="FC11" sourceRef="T_Concluir" targetRef="G_FimCh" />
+      <bpmn:sequenceFlow id="FC12" sourceRef="B_Concluir" targetRef="T_FalhaCh" />
+      <bpmn:sequenceFlow id="FC13" sourceRef="B_Atender" targetRef="T_FalhaCh" />
+      <bpmn:sequenceFlow id="FC14" sourceRef="T_FalhaCh" targetRef="G_FimCh" />
+      <bpmn:sequenceFlow id="FC15" sourceRef="G_FimCh" targetRef="SC_Fim" />
+    </bpmn:subProcess>
+    <bpmn:exclusiveGateway id="G_Merge2">
+      <bpmn:incoming>F12</bpmn:incoming>
+      <bpmn:incoming>F13</bpmn:incoming>
+      <bpmn:outgoing>F14</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="T_Resumo" name="Gerar resumo da execução (log + saida/execucao_*.json)">
+      <bpmn:incoming>F14</bpmn:incoming>
+      <bpmn:outgoing>F15</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="Fim" name="Execução concluída">
+      <bpmn:incoming>F15</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="F1" sourceRef="Inicio" targetRef="T_LerFila" />
+    <bpmn:sequenceFlow id="F2" sourceRef="T_LerFila" targetRef="G_FilaValida" />
+    <bpmn:sequenceFlow id="F3" name="sim" sourceRef="G_FilaValida" targetRef="T_LerChamadosFila" />
+    <bpmn:sequenceFlow id="F4" name="não (JSON inválido ou sem lista)" sourceRef="G_FilaValida" targetRef="T_ErroFila" />
+    <bpmn:sequenceFlow id="F5" sourceRef="B_Fila" targetRef="T_ErroFila" />
+    <bpmn:sequenceFlow id="F6" sourceRef="T_LerChamadosFila" targetRef="SP_Fila" />
+    <bpmn:sequenceFlow id="F7" sourceRef="SP_Fila" targetRef="G_Merge1" />
+    <bpmn:sequenceFlow id="F8" sourceRef="T_ErroFila" targetRef="G_Merge1" />
+    <bpmn:sequenceFlow id="F9" sourceRef="G_Merge1" targetRef="T_LerAcomp" />
+    <bpmn:sequenceFlow id="F10" sourceRef="T_LerAcomp" targetRef="SP_Chamados" />
+    <bpmn:sequenceFlow id="F11" sourceRef="B_Acomp" targetRef="T_ErroCh" />
+    <bpmn:sequenceFlow id="F12" sourceRef="SP_Chamados" targetRef="G_Merge2" />
+    <bpmn:sequenceFlow id="F13" sourceRef="T_ErroCh" targetRef="G_Merge2" />
+    <bpmn:sequenceFlow id="F14" sourceRef="G_Merge2" targetRef="T_Resumo" />
+    <bpmn:sequenceFlow id="F15" sourceRef="T_Resumo" targetRef="Fim" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagrama_RPA">
+    <bpmndi:BPMNPlane id="Plano_RPA" bpmnElement="Processo_RPA_LuzViva">
+      <bpmndi:BPMNShape id="Inicio_di" bpmnElement="Inicio">
+        <dc:Bounds x="60" y="122" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_LerFila_di" bpmnElement="T_LerFila">
+        <dc:Bounds x="140" y="100" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="B_Fila_di" bpmnElement="B_Fila">
+        <dc:Bounds x="212" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_FilaValida_di" bpmnElement="G_FilaValida" isMarkerVisible="true">
+        <dc:Bounds x="310" y="115" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_LerChamadosFila_di" bpmnElement="T_LerChamadosFila">
+        <dc:Bounds x="410" y="100" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_ErroFila_di" bpmnElement="T_ErroFila">
+        <dc:Bounds x="410" y="230" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SP_Fila_di" bpmnElement="SP_Fila" isExpanded="true">
+        <dc:Bounds x="580" y="30" width="900" height="540" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_Merge1_di" bpmnElement="G_Merge1" isMarkerVisible="true">
+        <dc:Bounds x="1530" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_LerAcomp_di" bpmnElement="T_LerAcomp">
+        <dc:Bounds x="1620" y="260" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="B_Acomp_di" bpmnElement="B_Acomp">
+        <dc:Bounds x="1662" y="322" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_ErroCh_di" bpmnElement="T_ErroCh">
+        <dc:Bounds x="1620" y="560" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SP_Chamados_di" bpmnElement="SP_Chamados" isExpanded="true">
+        <dc:Bounds x="1820" y="30" width="1030" height="470" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_Merge2_di" bpmnElement="G_Merge2" isMarkerVisible="true">
+        <dc:Bounds x="2880" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_Resumo_di" bpmnElement="T_Resumo">
+        <dc:Bounds x="2960" y="260" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Fim_di" bpmnElement="Fim">
+        <dc:Bounds x="3130" y="282" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SI_Inicio_di" bpmnElement="SI_Inicio">
+        <dc:Bounds x="610" y="172" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_Validar_di" bpmnElement="T_Validar">
+        <dc:Bounds x="680" y="150" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_Decisao_di" bpmnElement="G_Decisao" isMarkerVisible="true">
+        <dc:Bounds x="850" y="165" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_Invalido_di" bpmnElement="T_Invalido">
+        <dc:Bounds x="960" y="50" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_Monitorar_di" bpmnElement="T_Monitorar">
+        <dc:Bounds x="960" y="150" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_Duplicado_di" bpmnElement="T_Duplicado">
+        <dc:Bounds x="960" y="250" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_Abrir_di" bpmnElement="T_Abrir">
+        <dc:Bounds x="960" y="350" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="B_Abrir_di" bpmnElement="B_Abrir">
+        <dc:Bounds x="1032" y="412" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_FalhaItem_di" bpmnElement="T_FalhaItem">
+        <dc:Bounds x="1130" y="460" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_FimItem_di" bpmnElement="G_FimItem" isMarkerVisible="true">
+        <dc:Bounds x="1300" y="165" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SI_Fim_di" bpmnElement="SI_Fim">
+        <dc:Bounds x="1400" y="172" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SC_Inicio_di" bpmnElement="SC_Inicio">
+        <dc:Bounds x="1850" y="282" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_Conclui_di" bpmnElement="G_Conclui" isMarkerVisible="true">
+        <dc:Bounds x="1930" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_Concluir_di" bpmnElement="T_Concluir">
+        <dc:Bounds x="2040" y="60" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="B_Concluir_di" bpmnElement="B_Concluir">
+        <dc:Bounds x="2112" y="122" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_Prazo_di" bpmnElement="G_Prazo" isMarkerVisible="true">
+        <dc:Bounds x="2070" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_Escalar_di" bpmnElement="T_Escalar">
+        <dc:Bounds x="2180" y="380" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_MergePrazo_di" bpmnElement="G_MergePrazo" isMarkerVisible="true">
+        <dc:Bounds x="2350" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_Atend_di" bpmnElement="G_Atend" isMarkerVisible="true">
+        <dc:Bounds x="2440" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_Atender_di" bpmnElement="T_Atender">
+        <dc:Bounds x="2540" y="260" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="B_Atender_di" bpmnElement="B_Atender">
+        <dc:Bounds x="2612" y="242" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T_FalhaCh_di" bpmnElement="T_FalhaCh">
+        <dc:Bounds x="2540" y="120" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G_FimCh_di" bpmnElement="G_FimCh" isMarkerVisible="true">
+        <dc:Bounds x="2720" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SC_Fim_di" bpmnElement="SC_Fim">
+        <dc:Bounds x="2800" y="282" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="F1_di" bpmnElement="F1">
+        <di:waypoint x="96" y="140" />
+        <di:waypoint x="140" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F2_di" bpmnElement="F2">
+        <di:waypoint x="260" y="140" />
+        <di:waypoint x="310" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F3_di" bpmnElement="F3">
+        <di:waypoint x="360" y="140" />
+        <di:waypoint x="410" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F4_di" bpmnElement="F4">
+        <di:waypoint x="335" y="165" />
+        <di:waypoint x="335" y="270" />
+        <di:waypoint x="410" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F5_di" bpmnElement="F5">
+        <di:waypoint x="230" y="198" />
+        <di:waypoint x="230" y="290" />
+        <di:waypoint x="410" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F6_di" bpmnElement="F6">
+        <di:waypoint x="530" y="140" />
+        <di:waypoint x="580" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F7_di" bpmnElement="F7">
+        <di:waypoint x="1480" y="300" />
+        <di:waypoint x="1530" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F8_di" bpmnElement="F8">
+        <di:waypoint x="470" y="310" />
+        <di:waypoint x="470" y="620" />
+        <di:waypoint x="1555" y="620" />
+        <di:waypoint x="1555" y="325" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F9_di" bpmnElement="F9">
+        <di:waypoint x="1580" y="300" />
+        <di:waypoint x="1620" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F10_di" bpmnElement="F10">
+        <di:waypoint x="1740" y="300" />
+        <di:waypoint x="1820" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F11_di" bpmnElement="F11">
+        <di:waypoint x="1680" y="358" />
+        <di:waypoint x="1680" y="560" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F12_di" bpmnElement="F12">
+        <di:waypoint x="2850" y="300" />
+        <di:waypoint x="2880" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F13_di" bpmnElement="F13">
+        <di:waypoint x="1740" y="600" />
+        <di:waypoint x="2905" y="600" />
+        <di:waypoint x="2905" y="325" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F14_di" bpmnElement="F14">
+        <di:waypoint x="2930" y="300" />
+        <di:waypoint x="2960" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F15_di" bpmnElement="F15">
+        <di:waypoint x="3080" y="300" />
+        <di:waypoint x="3130" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FI1_di" bpmnElement="FI1">
+        <di:waypoint x="646" y="190" />
+        <di:waypoint x="680" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FI2_di" bpmnElement="FI2">
+        <di:waypoint x="800" y="190" />
+        <di:waypoint x="850" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FI3_di" bpmnElement="FI3">
+        <di:waypoint x="875" y="165" />
+        <di:waypoint x="875" y="90" />
+        <di:waypoint x="960" y="90" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FI4_di" bpmnElement="FI4">
+        <di:waypoint x="900" y="190" />
+        <di:waypoint x="960" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FI5_di" bpmnElement="FI5">
+        <di:waypoint x="875" y="215" />
+        <di:waypoint x="875" y="290" />
+        <di:waypoint x="960" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FI6_di" bpmnElement="FI6">
+        <di:waypoint x="875" y="215" />
+        <di:waypoint x="875" y="390" />
+        <di:waypoint x="960" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FI7_di" bpmnElement="FI7">
+        <di:waypoint x="1080" y="90" />
+        <di:waypoint x="1325" y="90" />
+        <di:waypoint x="1325" y="165" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FI8_di" bpmnElement="FI8">
+        <di:waypoint x="1080" y="190" />
+        <di:waypoint x="1300" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FI9_di" bpmnElement="FI9">
+        <di:waypoint x="1080" y="290" />
+        <di:waypoint x="1325" y="290" />
+        <di:waypoint x="1325" y="215" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FI10_di" bpmnElement="FI10">
+        <di:waypoint x="1080" y="390" />
+        <di:waypoint x="1325" y="390" />
+        <di:waypoint x="1325" y="215" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FI11_di" bpmnElement="FI11">
+        <di:waypoint x="1050" y="448" />
+        <di:waypoint x="1050" y="500" />
+        <di:waypoint x="1130" y="500" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FI12_di" bpmnElement="FI12">
+        <di:waypoint x="1250" y="500" />
+        <di:waypoint x="1325" y="500" />
+        <di:waypoint x="1325" y="215" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FI13_di" bpmnElement="FI13">
+        <di:waypoint x="1350" y="190" />
+        <di:waypoint x="1400" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC1_di" bpmnElement="FC1">
+        <di:waypoint x="1886" y="300" />
+        <di:waypoint x="1930" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC2_di" bpmnElement="FC2">
+        <di:waypoint x="1955" y="275" />
+        <di:waypoint x="1955" y="100" />
+        <di:waypoint x="2040" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC3_di" bpmnElement="FC3">
+        <di:waypoint x="1980" y="300" />
+        <di:waypoint x="2070" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC4_di" bpmnElement="FC4">
+        <di:waypoint x="2095" y="325" />
+        <di:waypoint x="2095" y="420" />
+        <di:waypoint x="2180" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC5_di" bpmnElement="FC5">
+        <di:waypoint x="2120" y="300" />
+        <di:waypoint x="2350" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC6_di" bpmnElement="FC6">
+        <di:waypoint x="2300" y="420" />
+        <di:waypoint x="2375" y="420" />
+        <di:waypoint x="2375" y="325" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC7_di" bpmnElement="FC7">
+        <di:waypoint x="2400" y="300" />
+        <di:waypoint x="2440" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC8_di" bpmnElement="FC8">
+        <di:waypoint x="2490" y="300" />
+        <di:waypoint x="2540" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC9_di" bpmnElement="FC9">
+        <di:waypoint x="2465" y="325" />
+        <di:waypoint x="2465" y="440" />
+        <di:waypoint x="2745" y="440" />
+        <di:waypoint x="2745" y="325" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC10_di" bpmnElement="FC10">
+        <di:waypoint x="2660" y="300" />
+        <di:waypoint x="2720" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC11_di" bpmnElement="FC11">
+        <di:waypoint x="2160" y="100" />
+        <di:waypoint x="2745" y="100" />
+        <di:waypoint x="2745" y="275" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC12_di" bpmnElement="FC12">
+        <di:waypoint x="2130" y="158" />
+        <di:waypoint x="2130" y="170" />
+        <di:waypoint x="2540" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC13_di" bpmnElement="FC13">
+        <di:waypoint x="2630" y="242" />
+        <di:waypoint x="2630" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC14_di" bpmnElement="FC14">
+        <di:waypoint x="2660" y="160" />
+        <di:waypoint x="2745" y="160" />
+        <di:waypoint x="2745" y="275" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC15_di" bpmnElement="FC15">
+        <di:waypoint x="2770" y="300" />
+        <di:waypoint x="2800" y="300" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

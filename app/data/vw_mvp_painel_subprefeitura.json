@@ -1,0 +1,37 @@
+{
+ "view": "vw_mvp_painel_subprefeitura",
+ "gerado_em": "2026-11-12T23:19:00",
+ "linhas": 3,
+ "dados": [
+  {
+   "subprefeitura": "SE",
+   "luminarias_cadastradas": 17035,
+   "luminarias_inspecionadas": 600,
+   "apagadas": 11,
+   "insuficientes": 19,
+   "pct_com_falha": 5.0,
+   "mediana_horas_ate_reparo": 93.5,
+   "chamados_em_aberto": 19
+  },
+  {
+   "subprefeitura": "PINHEIROS",
+   "luminarias_cadastradas": 13790,
+   "luminarias_inspecionadas": 268,
+   "apagadas": 12,
+   "insuficientes": 20,
+   "pct_com_falha": 11.9,
+   "mediana_horas_ate_reparo": 105.5,
+   "chamados_em_aberto": 30
+  },
+  {
+   "subprefeitura": "CAMPO LIMPO",
+   "luminarias_cadastradas": 16911,
+   "luminarias_inspecionadas": 366,
+   "apagadas": 17,
+   "insuficientes": 30,
+   "pct_com_falha": 12.8,
+   "mediana_horas_ate_reparo": 105.5,
+   "chamados_em_aberto": 34
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+# Texto sempre com LF no repositório (Docker e Linux), qualquer que seja o sistema de quem clona.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binários
+*.mp4 binary
+*.png binary
+*.jpg binary
+*.webp binary
+*.woff2 binary
+*.ttf binary

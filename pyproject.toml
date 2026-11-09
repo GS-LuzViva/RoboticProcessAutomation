@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "luzviva-rpa"
+version = "1.0.0"
+description = "Robô de RPA do LuzViva: abre e acompanha chamados de manutenção de iluminação pública"
+requires-python = ">=3.11"
+dependencies = ["requests", "tzdata"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "tests"]
+testpaths = ["tests"]

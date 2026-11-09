@@ -1,0 +1,11 @@
+[
+  {
+    "id_chamado": "CH-20261102-IP0511204",
+    "placa": "IP0511204",
+    "area": "CAMPO LIMPO",
+    "situacao_detectada": "apagada",
+    "dias_em_aberto": 7.0,
+    "prazo_dias": 5,
+    "registrado_em": "2026-11-09T12:32:50"
+  }
+]

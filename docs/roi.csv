@@ -1,0 +1,20 @@
+secao,parametro,valor,unidade,tipo,fonte_ou_formula
+entrada,volume_mensal_chamados,600,chamados/mes,estimativa,"~47.736 pontos na area-piloto x ~1,3% de falhas novas por mes (arredondado)"
+entrada,aht_manual,15,min/chamado,estimativa,"abrir 5 min (conferir duplicado, preencher, escolher equipe) + acompanhar 10 min (marcar atendimento, cobrar prazo, conferir reparo)"
+entrada,aht_robo_medido,0.146,s/execucao,medido,"assets/exemplo_execucao_sucesso.json: 8 itens da fila + 6 chamados, 3 POST e 2 PATCH, API local"
+entrada,aht_robo_usado,1,s/chamado,estimativa conservadora,"medido ~0,01 s/item local; 1 s cobre latencia da API na nuvem (~3 chamadas HTTP por chamado)"
+entrada,supervisao_humana_pct,10,% dos chamados,estimativa,"chamados escalados que o gestor cobra (pessoa no circuito)"
+entrada,supervisao_humana_min,5,min/chamado escalado,estimativa,
+entrada,custo_hora_fte,45,R$/h,estimativa,"analista administrativo R$ 4.500 + 70% encargos = R$ 7.650 / 170 h"
+entrada,horas_fte_mes,170,h/mes,premissa,
+entrada,custo_setup,9000,R$,estimativa,"100 h de desenvolvimento e testes x R$ 90/h"
+entrada,custo_mensal,370,R$/mes,estimativa,"VM ou agendador R$ 100 + 3 h de manutencao x R$ 90"
+saida,horas_manuais_mes,150.00,h/mes,calculado,volume x aht_manual / 60
+saida,horas_robo_mes,0.17,h/mes,calculado,volume x aht_robo_usado / 3600
+saida,horas_supervisao_mes,5.00,h/mes,calculado,volume x supervisao_pct x supervisao_min / 60
+saida,horas_economizadas_mes,144.83,h/mes,calculado,horas_manuais - horas_robo - horas_supervisao
+saida,economia_bruta_mes,6517.50,R$/mes,calculado,horas_economizadas x custo_hora_fte
+saida,economia_liquida_mes,6147.50,R$/mes,calculado,economia_bruta - custo_mensal
+saida,payback,1.46,meses,calculado,custo_setup / economia_liquida_mes
+saida,roi_anual,719.7,%,calculado,(12 x economia_liquida_mes - custo_setup) / custo_setup
+saida,ftes_recuperados,0.85,FTE,calculado,horas_economizadas / horas_fte_mes
