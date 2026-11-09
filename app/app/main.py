@@ -104,7 +104,10 @@ def nova_medicao(medicao: Medicao, cfg: Cfg, response: Response):
     return {"ok": True, "id": medicao.id_medicao}
 
 
-@rotas.post("/api/ocorrencias", status_code=201)
+# Rota da integração de visão (lote): a ocorrência chega pronta, com confiança e modelo, e pesa na
+# prioridade da fila. Por isso exige a mesma chave das outras rotas de máquina. O cidadão usa
+# /api/fotos, que fica aberta e calcula a visão no servidor.
+@rotas.post("/api/ocorrencias", status_code=201, dependencies=[Depends(exigir_token)])
 def nova_ocorrencia(ocorrencia: Ocorrencia, cfg: Cfg, response: Response):
     # `cidadao` não faz parte do modelo, então nunca chega ao arquivo do dia.
     if not armazenamento.anexar(cfg.dia, "ocorrencias_app", "id_ocorrencia", ocorrencia.model_dump(mode="json")):

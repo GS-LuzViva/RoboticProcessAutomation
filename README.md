@@ -270,7 +270,7 @@ LUZVIVA_API_URL=http://127.0.0.1:8799 LUZVIVA_API_TOKEN=token-demo python -m luz
 
 ```bash
 pip install -r requirements-dev.txt && pytest -q                      # robô: 68 testes
-cd app && pip install -r requirements-dev.txt && pytest -q             # API: 53 testes
+cd app && pip install -r requirements-dev.txt && pytest -q             # API: 55 testes
 cd app/frontend && npm ci && npm run lint && npm run build             # site: lint, tipos e build
 ```
 
@@ -315,7 +315,7 @@ na tela Chamados do site e voltam ao pipeline de dados no arquivo do dia `chamad
 
 - O robô só registra placa da luminária, id do chamado, prioridade, status e contagens; um filtro
   remove qualquer e-mail que chegue ao log. Nenhum nome, e-mail ou telefone de cidadão sai do app.
-- Rotas de escrita da API exigem `X-API-Key` quando `LUZVIVA_API_TOKEN` está definido (comparação
+- Rotas de escrita de máquina (medições, ocorrências da visão, chamados) exigem `X-API-Key` quando `LUZVIVA_API_TOKEN` está definido (comparação
   em tempo constante). O export das ocorrências (que tem localização de cidadão) também.
 - Fotos de cidadãos são regravadas sem EXIF/GPS, com limite de tamanho e de resolução.
 - Containers rodam com usuário sem privilégio; segredos só por variável de ambiente; `.env` fora do Git.

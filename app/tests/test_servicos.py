@@ -151,3 +151,11 @@ def test_foto_area_vem_do_cadastro_e_nao_do_seletor(cliente):
     ocorrencia = cliente.post("/api/fotos", files={"foto": ("p.jpg", jpeg_com_gps(), "image/jpeg")}, data=form).json()
     assert ocorrencia["area_piloto"] == "PINHEIROS"
     assert (ocorrencia["lat"], ocorrencia["lon"]) == (-23.5712, -46.6921)  # localização do cidadão é mantida
+
+
+def test_relato_do_cidadao_continua_aberto_com_token(novo_cliente, monkeypatch):
+    monkeypatch.setenv("LUZVIVA_API_TOKEN", "segredo-de-teste")
+    cliente = novo_cliente()
+    resposta = cliente.post("/api/fotos", files={"foto": ("p.jpg", jpeg_com_gps(), "image/jpeg")}, data=FORM)
+    assert resposta.status_code == 201
+    assert resposta.json()["confianca_visao"] is None  # sem VISAO_URL, ninguém de fora define a confiança

@@ -112,7 +112,7 @@ O código do site fica em `frontend/` (React + shadcn/ui); `static/` é gerado p
 | `LUZVIVA_DIA` | pasta dos arquivos do dia | `dados_dia` |
 | `LUZVIVA_DB` | arquivo SQLite dos chamados | `dados_dia/luzviva.db` |
 | `LUZVIVA_FOTOS` | pasta das fotos já sem EXIF | `fotos` |
-| `LUZVIVA_API_TOKEN` | se definido, exige `X-API-Key` em `POST /api/medicoes`, `POST /api/chamados`, `PATCH /api/chamados/*` e `GET /api/export/*` (o pipeline envia o header) | vazio (aberto, com aviso no log) |
+| `LUZVIVA_API_TOKEN` | se definido, exige `X-API-Key` em `POST /api/medicoes`, `POST /api/ocorrencias`, `POST /api/chamados`, `PATCH /api/chamados/*` e `GET /api/export/*` (robô, visão e pipeline enviam o header) | vazio (aberto, com aviso no log) |
 | `LUZVIVA_CORS` | origens permitidas, separadas por vírgula | vazio (nenhuma) |
 | `IA_URL` | serviço do assistente (`POST {IA_URL}/perguntar`) | vazio (assistente indisponível) |
 | `VISAO_URL` | serviço de visão (`POST {VISAO_URL}/detectar`) | vazio (foto sem visão) |
@@ -133,7 +133,7 @@ estão no [contrato de dados](docs/contrato_mvp_dados.md).
 | `GET /api/fila?subprefeitura=` | RPA, site, assistente | fila por prioridade, com o chamado atual do banco |
 | `GET /api/painel` | site, pitch | números por subprefeitura |
 | `POST /api/medicoes` | robô | grava a medição no arquivo do dia (201; 200 se repetida) |
-| `POST /api/ocorrencias` | visão em lote | grava a ocorrência (descarta `cidadao`) |
+| `POST /api/ocorrencias` | visão em lote | grava a ocorrência (descarta `cidadao`); exige `X-API-Key` quando há token |
 | `POST /api/fotos` | site | foto do cidadão: tira EXIF, chama a visão, grava a ocorrência |
 | `GET /api/chamados?status=&placa=&area_piloto=` | RPA, site | lista chamados |
 | `GET /api/chamados/{id_chamado}` | RPA, site | um chamado |

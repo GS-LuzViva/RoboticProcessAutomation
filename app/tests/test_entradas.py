@@ -97,8 +97,9 @@ def test_token_exigido_quando_definido(novo_cliente, monkeypatch):
     ok = {"X-API-Key": "segredo-de-teste"}
     assert cliente.post("/api/medicoes", json=MEDICAO, headers=ok).status_code == 201
     assert cliente.post("/api/chamados", json=chamado, headers=ok).status_code == 201
-    # Rotas do cidadão e de leitura continuam abertas
-    assert cliente.post("/api/ocorrencias", json=OCORRENCIA).status_code == 201
+    assert cliente.post("/api/ocorrencias", json=OCORRENCIA).status_code == 401
+    assert cliente.post("/api/ocorrencias", json=OCORRENCIA, headers=ok).status_code == 201
+    # Leitura continua aberta (o relato do cidadão, POST /api/fotos, é testado em test_servicos.py)
     assert cliente.get("/api/fila").status_code == 200
 
 
@@ -107,3 +108,15 @@ def test_export_exige_token_quando_definido(novo_cliente, monkeypatch):
     cliente = novo_cliente()
     assert cliente.get("/api/export/ocorrencias_app").status_code == 401
     assert cliente.get("/api/export/ocorrencias_app", headers={"X-API-Key": "segredo-de-teste"}).status_code == 404
+
+
+def test_ocorrencia_da_visao_exige_token_e_foto_do_cidadao_nao(novo_cliente, monkeypatch):
+    # Sem a chave, ninguém injeta confiança de visão para subir a prioridade de um poste.
+    monkeypatch.setenv("LUZVIVA_API_TOKEN", "segredo-de-teste")
+    cliente = novo_cliente()
+    ocorrencia = {"id_ocorrencia": "O20261110-0099", "data_hora": "2026-11-10T21:03:00",
+                  "categoria": "luminaria_apagada", "origem": "camera_visao", "confianca_visao": 0.99,
+                  "modelo_visao": "yolo11n-luzviva-v1", "foto_id": "a3f9c2e1b7d04411",
+                  "lat": -23.56, "lon": -46.69, "area_piloto": "PINHEIROS", "placa": "IP0000002"}
+    assert cliente.post("/api/ocorrencias", json=ocorrencia).status_code == 401
+    assert cliente.post("/api/ocorrencias", json=ocorrencia, headers={"X-API-Key": "segredo-de-teste"}).status_code == 201

@@ -25,7 +25,7 @@ campo novo nos JSON dos contratos 1 a 5. O que está aqui são decisões de comp
 | `GET /api/fila?subprefeitura=` | 200 envelope, `dados` ordenado por `prioridade` desc | 503 | `chamado_aberto` e `status_chamado` são **sobrepostos** com o estado atual do banco de chamados (o pipeline só atualiza 1x/dia) |
 | `GET /api/painel` | 200 envelope | 503 | |
 | `POST /api/medicoes` | 201 `{"ok":true,"id":...}`; 200 `{"ok":true,"id":...,"duplicado":true}` se o `id_medicao` já está no arquivo do dia | 422 | grava em `dados_dia/medicoes_robo/medicoes_robo_AAAA-MM-DD.json` |
-| `POST /api/ocorrencias` | 201 / 200 duplicado (mesma regra) | 422 | grava em `dados_dia/ocorrencias_app/...`; **descarta qualquer campo `cidadao`** (minimização LGPD) |
+| `POST /api/ocorrencias` | 201 / 200 duplicado (mesma regra) | 422 | grava em `dados_dia/ocorrencias_app/...`; **descarta qualquer campo `cidadao`** (minimização LGPD); rota da visão em lote, exige `X-API-Key` quando há token (a ocorrência traz `confianca_visao`, que pesa na prioridade) |
 | `POST /api/fotos` (multipart, campo `foto`; campos de formulário opcionais `categoria`, `placa`, `lat`, `lon`, `area_piloto`) | 201 com a ocorrência gravada (JSON do contrato 2) | 413 (>5 MB), 415 (não jpeg/png), 422 | rota interna do site: reencoda a imagem com Pillow (remove EXIF/GPS), gera `foto_id` = `secrets.token_hex(8)`, salva em `LUZVIVA_FOTOS/<foto_id>.jpg`; se `VISAO_URL` existe, chama `POST {VISAO_URL}/detectar` (multipart `foto`, timeout 20 s) e usa `categoria`, `confianca_visao`, `modelo_visao`, `placa` da resposta (campos ausentes caem no que o cidadão informou); sem visão ou se ela falhar: `categoria` do cidadão, `confianca_visao: null`, `modelo_visao: null`, `origem: "app_foto_cidadao"`. Com a `placa` (normalizada para maiúsculas) achada no cadastro, `area_piloto` vem do cadastro e `lat`/`lon` são completados quando o cidadão não compartilhou localização; sem placa nem localização → 422. Campo da visão fora do contrato (categoria, confiança fora de 0..1, placa inválida) é ignorado e vale o do cidadão. Imagem acima de 40 MP → 413 |
 | `GET /api/chamados?status=&placa=&area_piloto=` | 200 `{"linhas": n, "dados": [...]}` ordenado por `prioridade` desc, depois `aberto_em` | - | `status` aceita lista separada por vírgula (`aberto,em_atendimento`) |
 | `GET /api/chamados/{id_chamado}` | 200 chamado | 404 | |
@@ -56,7 +56,8 @@ aceito (idempotente).
   `PATCH /api/chamados/*` e `GET /api/export/*` (ocorrências têm a localização do cidadão, dado
   pessoal pela LGPD; o pipeline envia o header) exigem header `X-API-Key` igual (comparação com `secrets.compare_digest`);
   senão 401. Sem a variável, ficam abertas (modo desenvolvimento) e o app registra um aviso no log
-  ao iniciar. Ocorrências e fotos são do cidadão e ficam abertas.
+  ao iniciar. `POST /api/ocorrencias` (visão em lote) também exige a chave. O relato do cidadão
+  (`POST /api/fotos`) fica aberto: a confiança da visão é calculada no servidor, não enviada por quem relata.
 - CORS: origens de `LUZVIVA_CORS` (lista separada por vírgula); default nenhuma.
 - Nenhum nome, e-mail ou telefone de cidadão em rota pública, log ou arquivo do dia.
 
