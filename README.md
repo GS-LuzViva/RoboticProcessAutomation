@@ -28,13 +28,13 @@ integra (site + API do LuzViva), prontos para rodar juntos com um comando.
 
 ## Integrantes
 
-| Nome | RM | Papel na GS |
-|---|---|---|
-| Caíque Walter Silva | RM550693 | RPA (este repositório) + site e API do app (MVP) |
-| Matheus José de Lima Costa | RM551157 | Secure DevOps & Cloud |
-| João Paulo Fonseca Zamperlini | RM99279 | Computer Vision + Generative AI |
-| Guilherme Monteiro Espim | RM99499 | Maker Lab + BI & Startup |
-| Guilherme Nobre Bernardo | RM98604 | Big Data |
+| Nome | RM |
+|---|---|
+| Caíque Walter Silva | RM550693 |
+| Matheus José de Lima Costa | RM551157 |
+| João Paulo Fonseca Zamperlini | RM99279 |
+| Guilherme Monteiro Espim | RM99499 |
+| Guilherme Nobre Bernardo | RM98604 |
 
 ## Sumário
 
