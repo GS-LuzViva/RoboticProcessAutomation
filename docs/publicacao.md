@@ -21,7 +21,7 @@ O robô só começa quando o `/health` da API responde. Os dois usam o mesmo `LU
 Serve para Azure VM, AWS EC2, Oracle Cloud Free Tier ou qualquer VPS com Linux.
 
 ```bash
-git clone https://github.com/devCaiqueWS/RoboticProcessAutomation.git
+git clone https://github.com/GS-LuzViva/RoboticProcessAutomation.git
 cd RoboticProcessAutomation
 cp .env.example .env && nano .env          # LUZVIVA_API_TOKEN, LUZVIVA_RPA_INTERVALO
 docker compose up -d --build
