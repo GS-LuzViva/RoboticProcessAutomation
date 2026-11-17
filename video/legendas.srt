@@ -1,103 +1,67 @@
 1
-00:00:00,295 --> 00:00:01,410
-Quem avisa a prefeitura
+00:00:00,296 --> 00:00:01,544
+Esse poste apagou.
 
 2
-00:00:01,420 --> 00:00:02,866
-quando um poste apaga?
+00:00:01,554 --> 00:00:02,842
+E ninguém avisou.
 
 3
-00:00:03,935 --> 00:00:05,694
-Hoje, só quando alguém reclama.
+00:00:03,986 --> 00:00:05,504
+Mas o robô do LuzViva passou
 
 4
-00:00:05,704 --> 00:00:06,546
-O LuzViva acha
+00:00:05,514 --> 00:00:07,171
+pela Rua da Glória e mediu:
 
 5
-00:00:06,556 --> 00:00:07,763
-a falha antes.
+00:00:07,181 --> 00:00:08,758
+zero vírgula um lux.
 
 6
-00:00:08,855 --> 00:00:09,459
-No site,
+00:00:09,906 --> 00:00:11,910
+No site, ele aparece em vermelho,
 
 7
-00:00:09,469 --> 00:00:11,141
-o mapa mostra cada poste:
+00:00:11,920 --> 00:00:14,157
+com a placa que está pintada no poste.
 
 8
-00:00:11,151 --> 00:00:12,061
-verde funciona,
+00:00:15,306 --> 00:00:17,472
+Quem passa por ali confirma pelo celular:
 
 9
-00:00:12,071 --> 00:00:13,130
-amarelo está fraco,
+00:00:17,482 --> 00:00:18,700
+foto e placa.
 
 10
-00:00:13,140 --> 00:00:14,369
-vermelho apagou.
+00:00:19,866 --> 00:00:21,974
+Cada relato sobe a prioridade na fila
 
 11
-00:00:15,455 --> 00:00:16,873
-Viu um poste apagado?
+00:00:21,984 --> 00:00:23,098
+de manutenção.
 
 12
-00:00:16,883 --> 00:00:17,611
-Manda a foto
+00:00:24,256 --> 00:00:26,862
+De hora em hora, o robô de RPA lê a fila
 
 13
-00:00:17,621 --> 00:00:18,066
-e a placa
+00:00:26,872 --> 00:00:29,166
+e abre o chamado para a equipe do centro.
 
 14
-00:00:18,076 --> 00:00:19,669
-amarela pintada nele.
+00:00:30,326 --> 00:00:32,052
+Quando a luz volta, ele mesmo fecha
 
 15
-00:00:20,755 --> 00:00:21,302
-Aí entra
+00:00:32,062 --> 00:00:32,991
+o chamado.
 
 16
-00:00:21,312 --> 00:00:22,439
-o robô de RPA:
+00:00:34,136 --> 00:00:34,960
+LuzViva:
 
 17
-00:00:22,449 --> 00:00:23,348
-de hora em hora,
-
-18
-00:00:23,358 --> 00:00:24,132
-ele lê a fila
-
-19
-00:00:24,142 --> 00:00:25,405
-e abre o chamado.
-
-20
-00:00:26,485 --> 00:00:27,055
-E ele cobra
-
-21
-00:00:27,065 --> 00:00:27,498
-o prazo
-
-22
-00:00:27,508 --> 00:00:28,783
-até a luz voltar.
-
-23
-00:00:29,865 --> 00:00:30,855
-Esse é o LuzViva:
-
-24
-00:00:30,865 --> 00:00:32,060
-o site mostra a falha,
-
-25
-00:00:32,070 --> 00:00:32,537
-e o robô
-
-26
-00:00:32,547 --> 00:00:33,822
-cuida do chamado.
+00:00:34,970 --> 00:00:37,484
+a falha encontrada antes da reclamação.

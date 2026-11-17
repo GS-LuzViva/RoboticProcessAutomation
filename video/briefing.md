@@ -1,31 +1,18 @@
-# Briefing do episódio 01: o que fazem o site e o robô de RPA do LuzViva
-
-Adaptação do `BRIEFING_MASCOTE_VIDEO_CLAUDE_CODE.md` (que foi escrito para uma série de cosméticos)
-ao projeto LuzViva da GS FIAP 2026.2. O mascote-lâmpada é o mesmo; o assunto é iluminação pública.
+# Briefing: LuzViva explica, episódio 01, versão 2
 
 | Campo | Valor |
 |---|---|
-| Série | LuzViva explica (nome editável em `storyboard.json`) |
-| Objetivo | Explicar em ~36 s o que o site e o robô de RPA do LuzViva fazem, para avaliação da professora |
-| Público | Professora e banca da GS (não será postado nas redes) |
-| Pergunta | Quem avisa a prefeitura quando um poste apaga? |
-| Mensagem principal | O LuzViva acha a falha antes: o site mostra e recebe relatos, o robô abre e cobra o chamado |
-| Formato | Vertical no modelo Reels/TikTok (9:16, 1080 × 1920, 30 fps, MP4 H.264) |
-| Duração | 35,9 s |
-| Encerramento | Sem CTA: nome do produto, GS FIAP 2026.2, equipe com RM e aviso de dados simulados |
-| Produto | App LuzViva (site + API) e robô `luzviva-rpa`, telas reais do build de 09/11/2026 |
-| Alegações | Só o que o sistema faz hoje no piloto. "Acha a falha antes" é a proposta do produto, não resultado medido. Rodapé final avisa que é projeto acadêmico com dados do piloto parcialmente simulados |
-| Fontes de confirmação | `luzviva-app/docs/especificacao_api.md` (regras do RPA), `luzviva-rpa/logs/rpa_2026-11-09.log` (linhas do terminal), telas capturadas do app |
-| Voz | `pt-BR-FranciscaNeural` via edge-tts (escolha do usuário em 09/11; o texto do roteiro vai ao serviço da Microsoft; uso comercial dessa via não é garantido, ok para trabalho acadêmico) |
-| Trilha | Sem trilha: não há fonte de música liberada configurada (o catálogo da HeyGen exige login). Efeitos sonoros da biblioteca da skill media-use (licença Pixabay, uso comercial sem atribuição) |
-| Status da revisão | Render `render/ep-001.mp4` pronto, aguardando revisão do Caíque antes do envio |
-
-## Assets
-
-| Asset | Origem | Situação |
-|---|---|---|
-| Mascote, 8 poses | `../../mascote/folha_poses_original.webp` (fornecida pelo usuário), recortada em `../../mascote/poses/` | ok |
-| Telas do app | `assets/tela_*.png`, capturadas do build atual a 390 px, densidade 2x | ok |
-| Fontes | Public Sans e Barlow Condensed (SIL OFL), as mesmas do app | ok |
-| Logo da marca | não existe logo oficial além do selo "LV" do app | usar o selo do app |
-| Música | não fornecida | pendente, opcional |
+| Objetivo | Mostrar, com um caso real do começo ao fim, que o site mostra a falha e o robô de RPA abre e fecha o chamado sozinho |
+| Público | Professora e banca da GS FIAP 2026.2 (não será postado nas redes) |
+| Formato | Vertical 1080 × 1920, 30 fps, H.264 + AAC, 39,6 s |
+| Por que a v2 | A v1 foi avaliada como pouco profissional; o diagnóstico e as referências estão em `REFERENCIAS_MOTION.md` |
+| Roteiro escolhido | A, "Uma placa, do escuro ao conserto" (os outros dois em `STORYLINES.md`) |
+| Ferramenta | HyperFrames 0.9.61 (HTML + GSAP renderizado em MP4) |
+| Dados | Capturas reais do app e log real do robô de um ciclo executado em 17/11/2026; parte dos dados do piloto é simulada pelo pipeline do grupo, como o vídeo avisa no fim |
+| Voz | `pt-BR-FranciscaNeural` via edge-tts (o texto do roteiro vai ao serviço da Microsoft; ok para uso acadêmico) |
+| Trilha | Gerada localmente com MusicGen (`facebook/musicgen-small`). **Os pesos do modelo têm licença CC-BY-NC 4.0: só uso não comercial.** Serve para o trabalho acadêmico; não use esta trilha em peça comercial |
+| Efeitos sonoros | Biblioteca da skill media-use da HyperFrames, licença Pixabay (uso livre) |
+| Mapa | Mapa do próprio site (Leaflet + OpenStreetMap), com o crédito "© OpenStreetMap" na tela |
+| Fontes | Public Sans e Barlow Condensed (SIL OFL), as mesmas do app |
+| Verificação | `hyperframes check` sem erros; revisão independente quadro a quadro (15 notas corrigidas); áudio medido em -16,6 LUFS, voz cerca de 14,6 dB acima da trilha durante a fala (medido, não ouvido) |
+| Arquivos | Master `render/ep-001-v2.mp4` (150,7 MB, local); cópia de distribuição `render/luzviva-explica-ep01-v2.mp4` (28,5 MB, SSIM 0,972 contra o master) |

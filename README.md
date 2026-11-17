@@ -8,7 +8,7 @@ integra (site + API do LuzViva), prontos para rodar juntos com um comando.
   <a href="video/luzviva-explica-ep01.mp4">
     <img src="docs/img/capa-video.png" alt="Mascote do LuzViva explicando o site e o robô de RPA" width="280">
   </a><br>
-  <a href="video/luzviva-explica-ep01.mp4">Vídeo explicativo (36 s)</a>
+  <a href="video/luzviva-explica-ep01.mp4">Vídeo explicativo (40 s)</a>
 </p>
 
 ## Ficha Técnica
@@ -337,9 +337,10 @@ manual marcadas como estimativas ([docs/roi.md](docs/roi.md), [planilha](docs/ro
 
 ## Vídeo
 
-- [`video/luzviva-explica-ep01.mp4`](video/luzviva-explica-ep01.mp4): vídeo explicativo de 36 s
-  com o mascote do LuzViva (vertical 1080 × 1920), mostrando o site e o robô com telas reais.
-  Roteiro, legendas e storyboard em [`video/`](video/).
+- [`video/luzviva-explica-ep01.mp4`](video/luzviva-explica-ep01.mp4): vídeo explicativo de 40 s
+  com o mascote do LuzViva (vertical 1080 × 1920). Segue um poste real (IP0537885) do momento em que
+  apaga até o robô de RPA fechar o chamado, com telas reais do site e linhas reais do log do robô.
+  Roteiro, especificação de direção, referências de motion e legendas em [`video/`](video/).
 - Vídeo da disciplina de RPA (até 3 min, YouTube não listado): (preencher). Roteiro em
   [docs/roteiro_video.md](docs/roteiro_video.md).
 
